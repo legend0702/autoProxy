@@ -10,7 +10,7 @@ var strUtils = require("../lib/strUtils");
 var fsUtils = require("../lib/fsUtils");
 var pacUtils = require("../lib/pacUtils");
 var ipUtils = require("../lib/ipUtils");
-var hashMap = require("../lib/HashMap");
+var HashMap = require("../lib/HashMap");
 
 //Analyze result
 var data = {
@@ -94,8 +94,6 @@ var createPacByTOP1W = function () {
     utils.each(lines, function (l, d) {
         domains.push(d.split(strUtils.COMMA)[1]);
     });
-
-
     //pacUtils.createByTOP1W("../test/top1w.txt");
 };
 //createPacByTOP1W();
@@ -108,17 +106,137 @@ var logT = function () {
 //logT();
 
 var demo = function () {
-    var domains = [{
-        domain : 'baidu.com',
-        proxy : false
-    },{
-        domain : 'google.com',
-        proxy : true
-    }];
+    var domains = [
+        {
+            domain: 'baidu.com',
+            proxy: false
+        },
+        {
+            domain: 'google.com',
+            proxy: true
+        }
+    ];
 
     pacUtils.create(domains);
 };
-demo();
+
+//demo();
+
+//ability
+var ability = function () {
+    var hashMap = new HashMap();
+    var domains = {};
+    var top1wArr = new Array(10000);
+    var top1w = fsUtils.readTextSync("../test/top1w.txt");
+    var lines = top1w.split(strUtils.NEWLINE);
+    utils.each(lines, function (l, d) {
+        var arr = d.split(strUtils.COMMA);
+        var num = arr[0];
+        var host = arr[1];
+        var length = host.split(strUtils.DOT).length;
+        var ld = domains[length];
+        if (!ld) {
+            ld = {};
+            domains[length] = ld;
+        }
+        ld[host] = num;
+        hashMap.put(host, num);
+        top1wArr[num] = host;
+    });
+
+    var concatArr = function (arr) {
+        var str = '';
+        for (var i = 0, e = arr.length; i < e; i++)
+            str += arr[i] + ".";
+        return str.substring(0, str.length - 1);
+    };
+
+    var findDomain = function (host) {
+        var sh = host.split(strUtils.DOT);
+        var index = sh.length - 1;
+        while (index != 0) {
+            var ish = sh.slice(index - 1);
+            var hostName = concatArr(ish);
+            var num = domains[ish.length][hostName];
+            if (!num) {
+                index--;
+                continue;
+            }
+            return num;
+        }
+    };
+
+    var testAbility = function (host) {
+        var endDate = null;
+        var a = 0;
+        var b = 0;
+        var num = 0;
+        var startDate = new Date().getTime();
+        //console.log("objTest:" + startDate);
+        num = findDomain(host);
+        //console.log(findDomain(host));
+        endDate = new Date().getTime();
+        a = endDate - startDate;
+        //console.log("objTestEnd:" + a);
+
+
+        startDate = new Date().getTime();
+        //console.log("mapTest:" + startDate);
+        num = hashMap.get(host);
+        //console.log(hashMap.get(host));
+        endDate = new Date().getTime();
+        b = endDate - startDate;
+        //console.log("mapTestEnd:" + b);
+        // 代表map快
+        if (a > b)
+            return {
+                i: 0,
+                h: host,
+                n: num,
+                a: a,
+                b: b
+            };
+        // 代表obj快
+        if (b > a)
+            return {
+                i: 1,
+                h: host,
+                n: num,
+                a: a,
+                b: b
+            };
+        // 无法比较或相同
+        return {
+            i: 2,
+            h: host,
+            n: num,
+            a: a,
+            b: b
+        };
+    };
+
+    var roudomTest = function () {
+        return testAbility(top1wArr[Math.round(Math.random() * 10000)]);
+    };
+
+    var testArr = new Array(3);
+    for (var i = 10000; i != 0; i--) {
+        var result = roudomTest();
+        if (!result)
+            continue;
+        var iArr = testArr[result.i];
+        if (!iArr) {
+            iArr = [];
+            testArr[result.i] = iArr;
+        }
+        iArr.push(result);
+    }
+    console.log("a>b:" + testArr[0].length);
+    console.log("b>a:" + testArr[1].length);
+    console.log("a=b:" + testArr[2].length);
+};
+
+ability();
 
 //dns.resolve4('google.com', function (err, addresses) {
 //    if (err) throw err;
