@@ -9,9 +9,9 @@ module.exports = {
     // The file where are logs inside and should be analyze.
     rootDir: "",
     // If a old pac existed,It will backup the old one and put the new one.
-    pacPath: "G:\\jsWork\\autoProxy\\test\\proxy1.pac",
+    pacPath: "..\\test\\proxy1.pac",
     // Use juicer!
-    pacTemp: "G:\\jsWork\\autoProxy\\test\\pacTemp.js",
+    pacTemp: "..\\test\\pacTemp.js",
     //How long time to interval notify it(ms)
     intervalTime: 60000,
     //The app are waiting for next notify!
