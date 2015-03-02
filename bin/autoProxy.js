@@ -123,6 +123,13 @@ var demo = function () {
 //demo();
 
 //ability
+/**
+ * 测试obj的hashmap快 还是手写的hashmap快
+ *
+ * obj的hashmap快一点~
+ *
+ * 10000次get 平均obj大于map的此时在60~70 而map大于obj的在10~20 其余相等
+ */
 var ability = function () {
     var hashMap = new HashMap();
     var domains = {};
@@ -236,7 +243,7 @@ var ability = function () {
     console.log("a=b:" + testArr[2].length);
 };
 
-ability();
+//ability();
 
 //dns.resolve4('google.com', function (err, addresses) {
 //    if (err) throw err;
