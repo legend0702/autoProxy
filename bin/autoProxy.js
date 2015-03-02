@@ -128,7 +128,11 @@ var demo = function () {
  *
  * obj的hashmap快一点~
  *
- * 10000次get 平均obj大于map的此时在60~70 而map大于obj的在10~20 其余相等
+ * 10000次get 平均obj大于map的次数在60~70 而map大于obj的在10~20 其余相等
+ * 注:只要增加hashMap的容量 就能反超obj的默认实现 原理很简单 数组足够大支持O(1) :)
+ * 修复了一下resize策略 现在效率高很多(原来的resize策略写错了 我说怎么怪怪的...
+ * 基本完爆obj :)
+ *
  */
 var ability = function () {
     var hashMap = new HashMap();
@@ -159,7 +163,12 @@ var ability = function () {
     };
 
     var findDomain = function (host) {
-        var sh = host.split(strUtils.DOT);
+        var sh = [];
+        try {
+            sh = host.split(strUtils.DOT);
+        } catch (e) {
+            console.log(host);
+        }
         var index = sh.length - 1;
         while (index != 0) {
             var ish = sh.slice(index - 1);
@@ -223,7 +232,11 @@ var ability = function () {
     };
 
     var roudomTest = function () {
-        return testAbility(top1wArr[Math.round(Math.random() * 10000)]);
+        var host = null;
+        do {
+            host = top1wArr[Math.round(Math.random() * 10000)];
+        } while (!host)
+        return testAbility(host);
     };
 
     var testArr = new Array(3);
@@ -243,7 +256,7 @@ var ability = function () {
     console.log("a=b:" + testArr[2].length);
 };
 
-//ability();
+ability();
 
 //dns.resolve4('google.com', function (err, addresses) {
 //    if (err) throw err;
