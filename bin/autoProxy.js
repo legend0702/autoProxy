@@ -87,18 +87,38 @@ var logTool = (function () {
 })();
 
 //Test
-var juicerT = function () {
-    pacUtils.createByTOP1W("../test/top1w.txt");
+var createPacByTOP1W = function () {
+    var top1w = fsUtils.readTextSync("../test/top1w.txt");
+    var lines = top1w.split(strUtils.NEWLINE);
+    var domains = [];
+    utils.each(lines, function (l, d) {
+        domains.push(d.split(strUtils.COMMA)[1]);
+    });
+
+
+    //pacUtils.createByTOP1W("../test/top1w.txt");
 };
-//juicerT();
+//createPacByTOP1W();
+
 
 var logT = function () {
     var s = logTool.decodeFile("../test/logs/access.log-20150129");
     console.log(s);
 };
+//logT();
 
-logT();
+var demo = function () {
+    var domains = [{
+        domain : 'baidu.com',
+        proxy : false
+    },{
+        domain : 'google.com',
+        proxy : true
+    }];
 
+    pacUtils.create(domains);
+};
+demo();
 
 //dns.resolve4('google.com', function (err, addresses) {
 //    if (err) throw err;
