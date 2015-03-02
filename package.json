@@ -1,0 +1,19 @@
+{
+    "name": "autoProxy",
+    "version": "0.0.1",
+    "license": "Apache License",
+    "description": "A auto tool to analyze request-data and create pac for proxy-route :) ",
+    "main": "./bin/autoProxy.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/legend0702/autoProxy"
+    },
+    "author": {
+        "name": "HongQing.Zhu",
+        "email": "qwepoidjdj@gmail.com"
+    },
+    "dependencies": {
+        "juicer":"0.6.8-stable"
+    },
+    "engine": "node >= 0.10.1"
+}
