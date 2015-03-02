@@ -93,7 +93,7 @@ var juicerT = function () {
 //juicerT();
 
 var logT = function () {
-    var s = logTool.decodeFile("G:/jsWork/autoProxy/test/logs/access.log-20150129");
+    var s = logTool.decodeFile("../test/logs/access.log-20150129");
     console.log(s);
 };
 
