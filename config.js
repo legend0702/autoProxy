@@ -10,13 +10,13 @@ module.exports = {
      * Proxy server
      * Example:PROXY 127.0.0.1:10080
      */
-    proxy: "PROXY 127.0.0.1:10080",
+    proxy: "PROXY h.lv5.ac:29274",
     // The file where are logs inside and should be analyze.
     rootDir: "..\\resources\\logs",
     // Use juicer!
     pacTemp: "..\\resources\\temp\\pacTemp.js",
     // If a old pac existed,It will backup the old one and put the new one.
-    pacPath: "..\\test\\proxy1.pac",
+    pacPath: "..\\test\\proxy2.pac",
     //How long time to interval notify it(ms)
     intervalTime: 60000,
     //The app are waiting for next notify!

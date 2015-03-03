@@ -2,86 +2,82 @@
  * Created by HongQing.Zhu on 2015/2/9.
  */
 "use strict";
-var fs = require('fs');
+
 var utils = require("../lib/utils");
-var strUtils = require("../lib/strUtils");
 var fsUtils = require("../lib/fsUtils");
 var logAnalyzer = require("../lib/logAnalyzer");
 var cnipTool = require("../lib/cnipTool");
 var pacUtils = require("../lib/pacUtils");
-
+var ipUtils = require("../lib/ipUtils");
 var domainUtils = require("../lib/domainUtils");
 
-
-//Test
-var createPacByTOP1W = function () {
-    var top1w = fsUtils.readTextSync("../test/top1w.txt");
-    var lines = top1w.split(strUtils.NEWLINE);
-    var domains = [];
-    utils.each(lines, function (l, d) {
-        var doamin = d.split(strUtils.COMMA)[1];
-        //dns.look
-        //domains.push();
-    });
-    console.log(domains);
-    //pacUtils.createByTOP1W("../test/top1w.txt");
-};
-//createPacByTOP1W();
-
-var logT = function () {
-    var logs = logAnalyzer.decodeFilesSync("../test/logs");
-    // var logs = logAnalyzer.decodeFileSync("../test/logs/access.log-20150129");
-    var cnipVali = cnipTool.decodeFileAndReturnValidation("../test/cnip.txt");
-    for (var i = 0; i < logs.length; i++) {
-        var log = logs[i];
-        if (cnipVali.isCNIP(log.urlIP)) {
-            console.log("YES:" + log.url.hostname + ":" + log.urlIP);
+// Fix hostname to domain
+// Padding urlIP
+var fixLogSchema = function (schemas) {
+    var domainIP = {};
+    var emptyUrlIP = [];
+    for (var i = 0; i < schemas.length; i++) {
+        var log = schemas[i];
+        var domain = null;
+        try {
+            domain = domainUtils.getDomain(log.url.hostname);
+        } catch (e) {
+            console.log(e + ":" + log.origin);
+            schemas.splice(i, 1);
+            i--;
+            continue;
+        }
+        if (!domain) {
+            console.error("Can't find domain:" + schemas[i].origin);
+            schemas.splice(i, 1);
+            i--;
+            continue;
+        }
+        schemas[i].url.hostname = domain;
+        var urlIP = log.urlIP;
+        // Record ip
+        if (ipUtils.isIP(urlIP)) {
+            domainIP[domain] = urlIP;
         } else {
-            console.log("NO:" + log.url.hostname + ":" + log.urlIP);
+            urlIP = domainIP[domain];
+            if (!urlIP) {
+                emptyUrlIP.push(log);
+                continue
+            }
+            log.urlIP = urlIP;
         }
     }
-};
-//logT();
-
-var domainSuffix = function () {
-    var url = "https://publicsuffix.org/list/effective_tld_names.dat";
-    console.log(fs.readSync(url));
-};
-//domainSuffix();
-
-(function () {
-    var url = "gotemba.shizuoka.jp";
-    console.log(domainUtils.getDomain(url));
-})();
-
-var demo = function () {
-    var domains = [
-        {
-            domain: 'baidu.com',
-            proxy: false
-        },
-        {
-            domain: 'google.com',
-            proxy: true
+    for (var i = 0; i < emptyUrlIP.length; i++) {
+        var log = emptyUrlIP[i];
+        var ip = domainIP[log.url.hostname];
+        if (!ip) {
+            console.error("Can't find ip for:" + log.origin);
+            continue;
         }
-    ];
-    pacUtils.create(domains);
+        log.urlIP = ip;
+    }
 };
 
-//demo();
+var logT = function () {
+    var logs = logAnalyzer.decodeFilesSync("../resources/logs");
+    //var logs = logAnalyzer.decodeFileSync("../resources/logs/access.log-20150129");
+    fixLogSchema(logs);
+    var hostNames = logAnalyzer.sortByPkgSizeWithGroupHostName(logs);
+    var cnipVali = cnipTool.decodeFileAndReturnValidation("../resources/cnip.txt");
+    for (var i = 0; i < hostNames.length; i++) {
+        var hostName = hostNames[i];
+        utils.each(hostName.urlIP, function (ip, count) {
+            hostName.domain = hostName.hostname;
+            hostName.proxy = true;
+            // 只要有在国内的节点 就认为可以从国内直接连接 :)
+            if (cnipVali.isCNIP(ip)) {
+                hostName.proxy = false;
+                return false;
+            }
+        });
+    }
+    pacUtils.create(hostNames)
+};
 
-//dns.resolve4('www.google.com', function (err, addresses) {
-//    if (err) throw err;
-//    console.log('addresses: ' + JSON.stringify(addresses));
-//    addresses.forEach(function (a) {
-//        dns.reverse(a, function (err, hostnames) {
-//            if (err) {
-//                throw err;
-//            }
-//            console.log('reverse for ' + a + ': ' + JSON.stringify(hostnames));
-//        });
-//    });
-//});
-
-// Simple Timer :)
-//setInterval(main, config.intervalTime);
+// Do it :)
+logT();
