@@ -3,6 +3,7 @@
  */
 "use strict";
 
+var config = require("../config");
 var utils = require("../lib/utils");
 var fsUtils = require("../lib/fsUtils");
 var logAnalyzer = require("../lib/logAnalyzer");
@@ -33,7 +34,7 @@ var fixLogSchema = function (schemas) {
             i--;
             continue;
         }
-        schemas[i].url.hostname = domain;
+        log.url.hostname = domain;
         var urlIP = log.urlIP;
         // Record ip
         if (ipUtils.isIP(urlIP)) {
@@ -59,11 +60,11 @@ var fixLogSchema = function (schemas) {
 };
 
 var logT = function () {
-    var logs = logAnalyzer.decodeFilesSync("../resources/logs");
+    var logs = logAnalyzer.decodeFilesSync(config.rootDir);
     //var logs = logAnalyzer.decodeFileSync("../resources/logs/access.log-20150129");
     fixLogSchema(logs);
     var hostNames = logAnalyzer.sortByPkgSizeWithGroupHostName(logs);
-    var cnipVali = cnipTool.decodeFileAndReturnValidation("../resources/cnip.txt");
+    var cnipVali = cnipTool.decodeFileAndReturnValidation(config.chinaIPPath);
     for (var i = 0; i < hostNames.length; i++) {
         var hostName = hostNames[i];
         utils.each(hostName.urlIP, function (ip, count) {
