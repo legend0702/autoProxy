@@ -12,6 +12,10 @@ var pacUtils = require("../lib/pacUtils");
 var ipUtils = require("../lib/ipUtils");
 var domainUtils = require("../lib/domainUtils");
 
+var validateSchema = function (schemas) {
+    //TODO
+};
+
 // Fix hostname to domain
 // Padding urlIP
 var fixLogSchema = function (schemas) {
@@ -59,20 +63,18 @@ var fixLogSchema = function (schemas) {
     }
 };
 
-var logT = function () {
-    var logs = logAnalyzer.decodeFilesSync(config.rootDir);
-    //var logs = logAnalyzer.decodeFileSync("../resources/logs/access.log-20150129");
+var analyzerAndCreatePac = function (callback) {
+    //var logs = logAnalyzer.decodeFilesSync(config.rootDir);
+    var logs = logAnalyzer.decodeFileSync("../resources/logs/access.log-20150129");
     fixLogSchema(logs);
     var hostNames = logAnalyzer.sortByPkgSizeWithGroupHostName(logs);
-    var cnipVali = cnipTool.decodeFileAndReturnValidation(config.chinaIPPath);
     for (var i = 0; i < hostNames.length; i++) {
         var hostName = hostNames[i];
         utils.each(hostName.urlIP, function (ip, count) {
-            hostName.domain = hostName.hostname;
-            hostName.proxy = true;
-            // 只要有在国内的节点 就认为可以从国内直接连接 :)
-            if (cnipVali.isCNIP(ip)) {
-                hostName.proxy = false;
+            // 如果返回false代表这个元素不要了
+            if (false === callback(ip, hostName)) {
+                hostNames.splice(i, 1);
+                i--;
                 return false;
             }
         });
@@ -80,5 +82,14 @@ var logT = function () {
     pacUtils.create(hostNames)
 };
 
-// Do it :)
-logT();
+// Creat white pac :)
+analyzerAndCreatePac(function (ip, shcema) {
+    shcema.domain = shcema.hostname;
+
+    // 只要有在国内的节点 就认为可以从国内直接连接
+    if (cnipTool.isCNIP(ip)) {
+        shcema.proxy = false;
+    } else {
+        shcema.proxy = true;
+    }
+});

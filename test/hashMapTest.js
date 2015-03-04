@@ -20,7 +20,7 @@ var ability = function () {
     var domains = {};
     var top1wArr = new Array(10000);
     // init
-    var top1w = fsUtils.readTextSync("../test/top1w.txt");
+    var top1w = fsUtils.readTextSync("./test/top1w.txt");
     var lines = top1w.split(strUtils.NEWLINE);
     utils.each(lines, function (l, d) {
         var arr = d.split(strUtils.COMMA);
@@ -131,4 +131,5 @@ var ability = function () {
     console.log("b>a(obj快):" + testArr[1].length);
     console.log("a=b(相等):" + testArr[2].length);
 };
-ability();
+
+//ability();
