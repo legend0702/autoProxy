@@ -3,14 +3,15 @@
  */
 "use strict";
 
-var config = require("../config");
-var utils = require("../lib/utils");
-var fsUtils = require("../lib/fsUtils");
-var logAnalyzer = require("../lib/logAnalyzer");
-var cnipTool = require("../lib/cnipTool");
-var pacUtils = require("../lib/pacUtils");
-var ipUtils = require("../lib/ipUtils");
-var domainUtils = require("../lib/domainUtils");
+var config = require("../config"),
+    utils = require("../lib/utils"),
+    strUtils = require("../lib/strUtils"),
+    fsUtils = require("../lib/fsUtils"),
+    logAnalyzer = require("../lib/logAnalyzer"),
+    cnipTool = require("../lib/cnipTool"),
+    pacUtils = require("../lib/pacUtils"),
+    ipUtils = require("../lib/ipUtils"),
+    domainUtils = require("../lib/domainUtils");
 
 var validateSchema = function (schemas) {
     //TODO
@@ -88,6 +89,10 @@ var analyzerAndCreatePac = function (hostCallBack) {
 // Creat white pac :)
 analyzerAndCreatePac(function (ip, shcema) {
     shcema.domain = shcema.hostname;
+    // cn末尾的代表国内主机 暂且认为可信 (暂且在temp中追加 后面看看是否有必要扩展到方法
+    if (strUtils.lastCut(shcema.domain, strUtils.DOT) == '.cn') {
+        return false;
+    }
     // 只要有在国内的节点 就认为可以从国内直接连接
     if (cnipTool.isCNIP(ip)) {
         shcema.proxy = false;

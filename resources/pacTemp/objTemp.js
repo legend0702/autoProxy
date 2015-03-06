@@ -3,6 +3,8 @@ var hostStore = {};
 {@each DOMAINS as domain}
 hostStore['${domain.DOMAIN}'] = '${domain.PROXY}';
 {@/each}
+hostStore['com.cn'] = '${DIRECT}';
+hostStore['cn'] = '${DIRECT}';
 
 function getSplitHost(host) {
     var lastI = host.lastIndexOf('.');
@@ -24,8 +26,6 @@ function FindProxyForURL(url, host) {
     }
     var sh = getSplitHost(host);
     if (sh == null || sh.length == 1)
-        return '${DIRECT}';
-    if (sh[sh.length - 1] === 'cn')
         return '${DIRECT}';
     var index = sh.length - 1;
     while (index != 0) {
