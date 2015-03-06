@@ -64,8 +64,8 @@ var fixLogSchema = function (schemas) {
 };
 
 var analyzerAndCreatePac = function (hostCallBack) {
-    //var logs = logAnalyzer.decodeFilesSync(config.rootDir);
-    var logs = logAnalyzer.decodeFileSync("../resources/logs/access.log-20150129");
+    var logs = logAnalyzer.decodeFilesSync(config.rootDir);
+    //var logs = logAnalyzer.decodeFileSync("../resources/logs/access.log-20150129");
     fixLogSchema(logs);
     var hostNames = logAnalyzer.sortByPkgSizeWithGroupHostName(logs);
     for (var i = 0; i < hostNames.length; i++) {
@@ -82,7 +82,7 @@ var analyzerAndCreatePac = function (hostCallBack) {
             i--;
         }
     }
-    pacUtils.createHashSwitch(hostNames)
+    pacUtils.create(hostNames)
 };
 
 // Creat white pac :)

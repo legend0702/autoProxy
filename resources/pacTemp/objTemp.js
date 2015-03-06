@@ -1,12 +1,7 @@
 //${LOG}
-
 var hostStore = {};
-@each entry as en,i}
-    case ${i}:
-    {@each en as e}
-    if('${e.domain}' === hostName ) return '${e.proxy}';
-    {@/each}
-    break;
+{@each DOMAINS as domain}
+hostStore['${domain.DOMAIN}'] = '${domain.PROXY}';
 {@/each}
 
 function getSplitHost(host) {
@@ -28,15 +23,16 @@ function FindProxyForURL(url, host) {
         return '${DIRECT}';
     }
     var sh = getSplitHost(host);
-    if (sh == null || sh.length < 2)
+    if (sh == null || sh.length == 1)
         return '${DIRECT}';
-
+    if (sh[sh.length - 1] === 'cn')
+        return '${DIRECT}';
     var index = sh.length - 1;
     while (index != 0) {
-        var hostName = concatArr(sh.slice(index - 1));
-        var iFor = indexFor(hostName);
+        var proxy = hostStore[concatArr(sh.slice(index - 1))];
+        if (proxy)
+            return proxy;
         index--;
     }
-
     return '${PROXY}';
-}
+};
