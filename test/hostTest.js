@@ -9,55 +9,29 @@ var HashMap = require("../lib/HashMap");
 /**
  * 测试obj的hashmap快 还是手写的hashmap快
  *
- * 10000次get 平均obj大于map的次数在60~70 而map大于obj的在10~20 其余相等
  * 注:只要增加hashMap的容量 就能反超obj的默认实现 原理很简单 数组足够大支持O(1) :)
  * 修复了一下resize策略 现在效率高很多(原来的resize策略写错了 我说怎么怪怪的...
  * 基本完爆obj :)
  *
+ *  2015-03-04 坑爹的obj估计有黑科技 难赢
  */
 var ability = function () {
-    var hashMap = new HashMap();
-    var domains = {};
-    var top1wArr = new Array(10000);
+    var hashMap = new HashMap(600000),
+        domains = {},
+        top1wArr = [];
+
     // init
-    var top1w = fsUtils.readTextSync("./test/top1w.txt");
+    var top1w = fsUtils.readTextSync("./top1w.txt");
     var lines = top1w.split(strUtils.NEWLINE);
     utils.each(lines, function (l, d) {
-        var arr = d.split(strUtils.COMMA);
-        var num = arr[0];
-        var host = arr[1];
-        var length = host.split(strUtils.DOT).length;
-        var ld = domains[length];
-        if (!ld) {
-            ld = {};
-            domains[length] = ld;
-        }
-        ld[host] = num;
+        var arr = d.split(strUtils.COMMA),
+            num = arr[0],
+            host = arr[1];
+
+        domains[host] = num;
         hashMap.put(host, num);
         top1wArr[num] = host;
     });
-
-    var concatArr = function (arr) {
-        var str = '';
-        for (var i = 0, e = arr.length; i < e; i++)
-            str += arr[i] + ".";
-        return str.substring(0, str.length - 1);
-    };
-
-    var findDomain = function (host) {
-        var sh = host.split(strUtils.DOT);
-        var index = sh.length - 1;
-        while (index != 0) {
-            var ish = sh.slice(index - 1);
-            var hostName = concatArr(ish);
-            var num = domains[ish.length][hostName];
-            if (!num) {
-                index--;
-                continue;
-            }
-            return num;
-        }
-    };
 
     var testAbility = function (host) {
         var endDate = null;
@@ -66,7 +40,7 @@ var ability = function () {
         var num = 0;
         var startDate = new Date().getTime();
         //console.log("objTest:" + startDate);
-        num = findDomain(host);
+        num = domains[host];
         //console.log(findDomain(host));
         endDate = new Date().getTime();
         a = endDate - startDate;

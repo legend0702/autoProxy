@@ -9,7 +9,7 @@ describe("HashMap Test", function () {
         fsUtils = require("../lib/fsUtils"),
         maxLength = 10000;
 
-    var hashMap = new HashMap(maxLength),
+    var hashMap = new HashMap(maxLength * 10),
         domains = {},
         top1wArr = [],
         static_key = undefined;

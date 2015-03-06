@@ -63,7 +63,7 @@ var fixLogSchema = function (schemas) {
     }
 };
 
-var analyzerAndCreatePac = function (callback) {
+var analyzerAndCreatePac = function (hostCallBack) {
     //var logs = logAnalyzer.decodeFilesSync(config.rootDir);
     var logs = logAnalyzer.decodeFileSync("../resources/logs/access.log-20150129");
     fixLogSchema(logs);
@@ -71,25 +71,26 @@ var analyzerAndCreatePac = function (callback) {
     for (var i = 0; i < hostNames.length; i++) {
         var hostName = hostNames[i];
         utils.each(hostName.urlIP, function (ip, count) {
-            // 如果返回false代表这个元素不要了
-            if (false === callback(ip, hostName)) {
-                hostNames.splice(i, 1);
-                i--;
+            // 停止循环
+            if (false === hostCallBack(ip, hostName)) {
                 return false;
             }
         });
+        // 如果没有对这个对象设置proxy 就代表这个元素不要了
+        if (!utils.isUseful(hostName.proxy)) {
+            hostNames.splice(i, 1);
+            i--;
+        }
     }
-    pacUtils.create(hostNames)
+    pacUtils.createHashSwitch(hostNames)
 };
 
 // Creat white pac :)
 analyzerAndCreatePac(function (ip, shcema) {
     shcema.domain = shcema.hostname;
-
     // 只要有在国内的节点 就认为可以从国内直接连接
     if (cnipTool.isCNIP(ip)) {
         shcema.proxy = false;
-    } else {
-        shcema.proxy = true;
+        return false;
     }
 });

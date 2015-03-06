@@ -1,4 +1,4 @@
-//${log}
+//${LOG}
 
 function getSplitHost(host) {
     var lastI = host.lastIndexOf('.');
@@ -22,7 +22,7 @@ var decode = function (str) {
 };
 
 var indexFor = function (key) {
-    return decode(key) & ${entryTotal};
+    return decode(key) & ${HASH_TOTAL};
 };
 
 var concatArr = function (arr) {
@@ -44,10 +44,10 @@ function FindProxyForURL(url, host) {
         var hostName = concatArr(sh.slice(index - 1));
         var iFor = indexFor(hostName);
         switch (iFor) {
-            {@each entry as en,i}
-                case ${i}:
-                {@each en as e}
-                    if('${e.domain}' === hostName ) return '${e.proxy}';
+            {@each DOMAIN_HASH_TABLE as entry,ind}
+                case ${ind}:
+                {@each entry as item}
+                    if('${item.DOMAIN}' === hostName ) return '${item.PROXY}';
                 {@/each}
                 break;
             {@/each}
