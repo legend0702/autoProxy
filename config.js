@@ -16,6 +16,6 @@ module.exports = {
     // Use juicer!
     //pacTemp: "../resources/pacTemp/hashTemp.js",
     pacTemp: "../resources/pacTemp/objTemp.js",
-    // If a old pac existed,It will backup the old one and put the new one.
+    // If an old pac existed,It will backup the old one and put the new one.
     pacPath: "../test/autoProxyW.pac"
 };
